@@ -1,23 +1,8 @@
-FROM alpine:3
+FROM google/cloud-sdk:alpine
 
-RUN apk add --update \
+RUN apk add --update --no-cache \
   bash \
-  postgresql \
-  curl \
-  python \
-  py-pip \
-  py-cffi \
-  && pip install --upgrade pip \
-  && apk add --virtual build-deps \
-  gcc \
-  libffi-dev \
-  python-dev \
-  linux-headers \
-  musl-dev \
-  openssl-dev \
-  && pip install gsutil \
-  && apk del build-deps \
-  && rm -rf /var/cache/apk/*
+  postgresql
 
 ADD . /postgres-gcs-backup
 
