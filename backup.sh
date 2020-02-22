@@ -19,9 +19,6 @@ POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-}
 SLACK_ALERTS=${SLACK_ALERTS:-}
 SLACK_AUTHOR_NAME=${SLACK_AUTHOR_NAME:-postgres-gcs-backup}
 SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL:-}
-SLACK_CHANNEL=${SLACK_CHANNEL:-}
-SLACK_USERNAME=${SLACK_USERNAME:-}
-SLACK_ICON=${SLACK_ICON:-}
 
 backup() {
   mkdir -p $BACKUP_DIR
@@ -74,12 +71,9 @@ send_slack_message() {
   local title=${2}
   local message=${3}
 
-  echo 'Sending to '${SLACK_CHANNEL}'...'
+  echo 'Sending to SLACK ...'
   curl --data-urlencode \
-    "$(printf 'payload={"channel": "%s", "username": "%s", "link_names": "true", "icon_url": "%s", "attachments": [{"author_name": "%s", "title": "%s", "text": "%s", "color": "%s"}]}' \
-        "${SLACK_CHANNEL}" \
-        "${SLACK_USERNAME}" \
-        "${SLACK_ICON}" \
+    "$(printf 'payload={"attachments": [{"author_name": "%s", "title": "%s", "text": "%s", "color": "%s"}]}' \
         "${SLACK_AUTHOR_NAME}" \
         "${title}" \
         "${message}" \

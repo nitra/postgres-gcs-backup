@@ -6,7 +6,7 @@ This project aims to provide a simple way to perform a PostgreSQL server/db back
 
 You can pull the public image from Docker Hub:
 
-    docker pull diogopms/postgres-gcs-backup:latest
+    docker pull nitra/postgres-gcs-backup:latest
 
 ### Configuration
 
@@ -14,22 +14,19 @@ The following table lists the configurable parameters you can set up.
 
 | Environment Variable | Required | Default               | Description                                                                          |
 | -------------------- | -------- | --------------------- | ------------------------------------------------------------------------------------ |
-| `JOB_NAME`           | No       | `default-name`        | Job name                                                                             |
+| `JOB_NAME`           | No       | `default-job`         | Job name                                                                             |
 | `BACKUP_DIR`         | No       | `/tmp`                | The path where the `pg_dump` result will be temporarily stored.                      |
 | `BOTO_CONFIG_PATH`   | No       | `/root/.boto`         | The path where `gsutil` will search for the boto configuration file.                 |
 | `GCS_BUCKET`         | Yes      |                       | The bucket you want to upload the backup archive to.                                 |
 | `GCS_KEY_FILE_PATH`  | Yes      |                       | The location where the GCS serviceaccount key file will be mounted.                  |
 | `POSTGRES_HOST`      | No       | `localhost`           | The PostgreSQL server host.                                                          |
-| `POSTGRES_PORT`      | No       | `27017`               | The PostgreSQL port.                                                                 |
+| `POSTGRES_PORT`      | No       | `5432`                | The PostgreSQL port.                                                                 |
 | `POSTGRES_DB`        | No       |                       | The database to backup. By default, a backup of all the databases will be performed. |
 | `POSTGRES_USER`      | No       |                       | The PostgreSQL user if any.                                                          |
 | `POSTGRES_PASSWORD`  | No       |                       | The PostgreSQL password if any.                                                      |
 | `SLACK_AUTHOR_NAME`  | No       | `postgres-gcs-backup` | `true` slack author name.                                                            |
 | `SLACK_ALERTS`       | No       |                       | `true` if you want to send Slack alerts in case of failure.                          |
 | `SLACK_WEBHOOK_URL`  | No       |                       | The Incoming WebHook URL to use to send the alerts.                                  |
-| `SLACK_CHANNEL`      | No       |                       | The channel to send Slack messages to.                                               |
-| `SLACK_USERNAME`     | No       |                       | The user to send Slack messages as.                                                  |
-| `SLACK_ICON`         | No       |                       | The Slack icon to associate to the user/message.                                     |
 
 ### Usage
 
@@ -37,10 +34,12 @@ The following table lists the configurable parameters you can set up.
 
 You can run the script locally:
 
-    cd /path/to/postgres-gcs-backup
-    chmod +x backup.sh
-    GCS_BUCKET=<gs://bucket_name> \
-    ./backup.sh
+    docker build -t t1 .
+    docker run -e POSTGRES_HOST=db -e POSTGRES_DB=strapi  -e POSTGRES_USER=strapi -e POSTGRES_PASSWORD=strapi -e "GCS_BUCKET=gs://backup" t1
+
+or
+
+    docker run -e POSTGRES_HOST=db -e POSTGRES_DB=strapi  -e POSTGRES_USER=strapi -e POSTGRES_PASSWORD=strapi -e "GCS_BUCKET=gs://backup" -e SLACK_ALERTS=true -e SLACK_WEBHOOK_URL=https://hooks.slack.com/services/T027RKXGB/BUCEFU988/yWGdLTd4l1cC4rQiWylT4oN  -e JOB_NAME=pgDump --network=tempo_default t1
 
 ### Authenticate with GCS
 
