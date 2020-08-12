@@ -16,6 +16,7 @@ POSTGRES_PORT=${POSTGRES_PORT:-5432}
 POSTGRES_DB=${POSTGRES_DB:-}
 POSTGRES_USER=${POSTGRES_USER:-}
 POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-}
+STOP_SLAVE=${STOP_SLAVE:-}
 SLACK_ALERTS=${SLACK_ALERTS:-}
 SLACK_AUTHOR_NAME=${SLACK_AUTHOR_NAME:-postgres-gcs-backup}
 SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL:-}
@@ -37,10 +38,25 @@ backup() {
   fi
 
   export PGPASSWORD=$POSTGRES_PASSWORD
+
+  if [[ $STOP_SLAVE == "true" ]]
+  then
+    echo "Pause replication"
+    cmdp="psql --host=\"$POSTGRES_HOST\" --port=\"$POSTGRES_PORT\" $cmd_auth_part --command 'select pg_wal_replay_pause();'"
+    eval "$cmdp"
+  fi
+ 
   cmd="pg_dump --host=\"$POSTGRES_HOST\" --port=\"$POSTGRES_PORT\" $cmd_auth_part $cmd_db_part | gzip > $BACKUP_DIR/$archive_name"
   echo "starting to backup PostGRES host=$POSTGRES_HOST port=$POSTGRES_PORT"
 
   eval "$cmd"
+
+  if [[ $STOP_SLAVE == "true" ]]
+  then
+    echo "Resume replication"
+    cmdr="psql --host=\"$POSTGRES_HOST\" --port=\"$POSTGRES_PORT\" $cmd_auth_part --command 'select pg_wal_replay_resume();'"
+    eval "$cmdr"
+  fi  
 }
 
 upload_to_gcs() {
