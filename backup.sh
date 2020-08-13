@@ -42,7 +42,7 @@ backup() {
   if [[ $STOP_SLAVE == "true" ]]
   then
     echo "Pause replication"
-    cmdp="psql --host=\"$POSTGRES_HOST\" --port=\"$POSTGRES_PORT\" $cmd_auth_part --command 'select pg_wal_replay_pause();'"
+    cmdp="psql --host=\"$POSTGRES_HOST\" --port=\"$POSTGRES_PORT\" $cmd_auth_part $cmd_db_part --command 'select pg_wal_replay_pause();'"
     eval "$cmdp"
   fi
  
@@ -54,7 +54,7 @@ backup() {
   if [[ $STOP_SLAVE == "true" ]]
   then
     echo "Resume replication"
-    cmdr="psql --host=\"$POSTGRES_HOST\" --port=\"$POSTGRES_PORT\" $cmd_auth_part --command 'select pg_wal_replay_resume();'"
+    cmdr="psql --host=\"$POSTGRES_HOST\" --port=\"$POSTGRES_PORT\" $cmd_auth_part $cmd_db_part --command 'select pg_wal_replay_resume();'"
     eval "$cmdr"
   fi  
 }
